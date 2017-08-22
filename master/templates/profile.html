@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <!-- Bootstrap 3.3.6 -->
+    <link rel="stylesheet" href="/static/prokj/bootstrap.min.css">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/prokj/font-awesome.min.css">
+    <!-- Ionicons -->
+    <link rel="stylesheet" href="/static/prokj/ionicons.min.css">
+    <link rel="stylesheet" href="/static/prokj/dataTables.bootstrap.css">
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/prokj/AdminLTE.min.css">
+
+
+</head>
+<body style="background-color: #ecf0f5;">
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        个人设置
+        <small>profile</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/mainform/main"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li>个人设置</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+
+    <div class="row">
+        <div class="col-md-3">
+
+            <!-- Profile Image -->
+            <div class="box box-primary">
+                <div class="box-body box-profile">
+                    <img class="profile-user-img img-responsive img-circle" src="/static/images/user2-160x160.jpg"
+                         alt="User profile picture">
+
+                    <h3 class="profile-username text-center">{{login_t_name}}</h3>
+
+                    <p class="text-muted text-center">Software Engineer</p>
+
+                    <ul class="list-group list-group-unbordered">
+                        <li class="list-group-item">
+                            <b>Followers</b> <a class="pull-right">1,322</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Following</b> <a class="pull-right">543</a>
+                        </li>
+                        <li class="list-group-item">
+                            <b>Friends</b> <a class="pull-right">13,287</a>
+                        </li>
+                    </ul>
+
+                    <a href="#" class="btn btn-primary btn-block"><b>Follow</b></a>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+
+            <!-- About Me Box -->
+
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+        <div class="col-md-9">
+            <div class="nav-tabs-custom">
+                <ul class="nav nav-tabs">
+                    <li class="active"><a href="#settings" data-toggle="tab" aria-expanded="false">settings</a></li>
+                    <li class=""><a href="#timeline" data-toggle="tab" aria-expanded="false">Activity</a></li>
+                </ul>
+                <div class="tab-content">
+
+                    <!-- /.tab-pane -->
+                    <div class="tab-pane" id="timeline">
+                        <!-- The timeline -->
+                    </div>
+                    <!-- /.tab-pane -->
+
+                    <div class="tab-pane active" id="settings">
+                        <div class="form-horizontal">
+
+                            <div class="form-group">
+                                <label for="inputname" class="col-sm-2 control-label">姓名</label>
+
+                                <div class="col-sm-10">
+                                    <input type="text" value="{{login_t_name}}" class="form-control" id="inputname" placeholder="Name">
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputExperience" class="col-sm-2 control-label">个人简介</label>
+
+                                <div class="col-sm-10">
+                                    <textarea class="form-control" id="inputExperience" disabled
+                                              placeholder="个人简介"></textarea>
+                                </div>
+                            </div>
+                            <div class="form-group" >
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox" id="changepsw" onchange="changepsw_change();" > 修改密码
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <label for="inputName" class="col-sm-2 control-label">新密码</label>
+
+                                <div class="col-sm-10">
+                                    <input type="password" class="form-control" id="newpsw" disabled >
+                                </div>
+                            </div>
+
+
+                            <div class="form-group" style="display:none">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <div class="checkbox">
+                                        <label>
+                                            <input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="form-group">
+                                <div class="col-sm-offset-2 col-sm-10">
+                                    <button type="submit" class="btn btn-danger">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- /.tab-pane -->
+                </div>
+                <!-- /.tab-content -->
+            </div>
+            <!-- /.nav-tabs-custom -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+
+</section>
+<!-- /.content -->
+
+</body>
+    <script src="/static/prokj/jquery-2.2.3.min.js"></script>
+    <!-- Bootstrap 3.3.6 -->
+    <script src="/static/prokj/bootstrap.min.js"></script>
+    <script src="/static/sourcejs/common/profile.js"></script>
+
+</html>

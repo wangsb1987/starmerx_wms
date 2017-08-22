@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+def get_account_list(req):
+    pagesize = 10
+    pageindex = 1
+    if req.GET.has_key('pagesize'):
+        pagesize = int(req.GET['pagesize'])
+    if req.GET.has_key('pageindex'):
+        pageindex = int(req.GET['pageindex'])
+    startjilu = pagesize * pageindex - pagesize
+    endjilu = pagesize * pageindex
+    account_objs = AccountInvoice.objects.all()[startjilu:endjilu]
+    list1 = []
+    jsonstr = "{"
+    def state_help(argument):
+        switcher = {
+            'draft': "草稿",
+            'validate': "待支付",
+            'open': "待审核",
+            'partPaid': "部分支付",
+            'paid': "已付",
+            'closed': "已结案",
+            'cancel': "已取消",
+        }
+        return switcher.get(argument, "nothing")
+    for acitem in account_objs:
+        dict1 = {}
+        dict1['id'] = acitem.id
+        # 供应商
+        partner = ResPartner.objects.get(id=acitem.partner_id)
+        dict1['partner'] = partner.name
+        dict1['date_invoice'] = acitem.date_invoice
+        dict1['number'] = acitem.number
+        # 销售员
+        user = ResUsers.objects.get(id=acitem.user_id)
+        userp = ResPartner.objects.get(id=user.partner_id)
+        dict1['user'] = userp.name
+        # 付款方式
+        if acitem.payment_mode:
+            payment = PaymentMode.objects.get(id=acitem.payment_mode)
+            dict1['payment_mode'] = payment.name
+        else:
+            dict1['payment_mode'] = ''
+        dict1['date_due'] = acitem.date_due
+        dict1['origin'] = acitem.origin
+        # 币种
+        biz = ResCurrency.objects.get(id=acitem.currency_id)
+        dict1['currency'] = biz.name
+        dict1['residual'] = acitem.residual
+        # 小计
+        dict1['amount_untaxed'] = acitem.amount_untaxed
+        # 合计
+        dict1['amount_total'] = acitem.amount_total
+
+        dict1['state'] = state_help(acitem.state)
+        list1.append(dict1)
+        jsonstr += String(dict1)
+    jsonstr += "}"
+    aa = jsonstr
+    bb = jsonstr
+    return json.dumps(list1)
+</body>
+</html>

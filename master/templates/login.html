@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="">
+<head>
+	<meta charset="utf-8">
+	<title>starmerx wms</title>
+
+	<link rel="stylesheet" href="/static/css/login.css" media="all" />
+	<!--[if IE]><link rel="stylesheet" href="/static/css/ie.css" media="all" /><![endif]-->
+</head>
+<body class="login">
+	<section>
+		<span style="font-size:18px;color:white;">Starmerx WMS</span>
+		<br/><br/>
+		<form method="post" >
+			{{form}}
+
+			<button class="blue" type="submit">Login</button>
+		</form>
+		<p><a href="#">Forgot your password?</a></p>
+	</section>
+<script src="/static/prokj/jquery-2.2.3.min.js"></script>
+<script type="text/javascript">
+
+$(function(){
+
+	$('input').each(function() {
+
+       var default_value = this.value;
+
+       $(this).focus(function(){
+               if(this.value == default_value) {
+                       this.value = '';
+               }
+       });
+
+       $(this).blur(function(){
+               if(this.value == '') {
+                       this.value = default_value;
+               }
+       });
+
+});
+});
+</script>
+</body>
+</html>

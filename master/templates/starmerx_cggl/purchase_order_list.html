@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/prokj/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/prokj/dataTables.bootstrap.css">
+
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/prokj/AdminLTE.min.css">
+
+
+    <link rel="stylesheet" href="/static/bootstrap_table/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/bootstrap_table/bootstrap-table.min.css"/>
+    <script type="text/javascript" src="/static/bootstrap_table/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap-table-zh-CN.js"></script>
+   <link rel="stylesheet" href="/static/css/select2.min.css">
+    <link rel="stylesheet" href="/static/css/select2-bootstrap.min.css">
+
+    <script src="/static/js/select2.min.js"></script>
+    <script src="/static/js/select2.full.js"></script>
+
+</head>
+<body>
+<input id="pagesize" type="hidden" value="10"/>
+<input id="selid" type="hidden" value=""/>
+<input id="selrowindex" type="hidden" value=""/>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        采购单
+        <small>purchase order list</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/mainform/main"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li>采购管理</li>
+        <li class="active">询价单</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
+
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div id="toolbar">
+
+
+                                    <div class="form-group">
+                                        <select id="partner_id" class="js-data-example-ajax form-control"
+                                                style="width:150px">
+                                            <option value="0">选择供应商</option>
+
+                                        </select>
+                                    </div>
+                                    <div class="form-group ">
+
+                                        <input id="name_qt" type="text" name="table_search"
+                                               class="form-control pull-right" style="width:100px"
+                                               placeholder="单号">
+
+                                    </div>
+                                    <div class="form-group ">
+                                        <button type="submit" id="btn_query" class="btn btn-default"><i
+                                                class="fa fa-search"></i></button>
+                                    </div>
+
+
+                                </div>
+                                <table id="bootstraptable" style="font-size:12px"
+                                       class="table table-bordered table-striped table-hover" role="grid"
+                                       aria-describedby="example1_info"
+                                       data-show-refresh="true"
+                                       data-show-columns="true"
+                                       data-show-export="true"
+                                       data-detail-view="true">
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->
+</body>
+
+
+<script type="text/javascript" src="/static/sourcejs/cggl/purchase_order_list.js"></script>
+</html>

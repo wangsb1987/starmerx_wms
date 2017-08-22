@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="/static/prokj/font-awesome.min.css">
+    <link rel="stylesheet" href="/static/prokj/dataTables.bootstrap.css">
+
+    <!-- Theme style -->
+    <link rel="stylesheet" href="/static/prokj/AdminLTE.min.css">
+
+
+    <link rel="stylesheet" href="/static/bootstrap_table/bootstrap.min.css"/>
+    <link rel="stylesheet" href="/static/bootstrap_table/bootstrap-table.min.css"/>
+    <script type="text/javascript" src="/static/bootstrap_table/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap-table.js"></script>
+    <script type="text/javascript" src="/static/bootstrap_table/bootstrap-table-zh-CN.js"></script>
+
+
+</head>
+<body>
+<input id="pagesize" type="hidden" value="10"/>
+<input id="selid" type="hidden" value=""/>
+<input id="selrowindex" type="hidden" value=""/>
+
+<!-- Content Header (Page header) -->
+<section class="content-header">
+    <h1>
+        发票列表
+        <small>invoices list</small>
+    </h1>
+    <ol class="breadcrumb">
+        <li><a href="/mainform/main"><i class="fa fa-dashboard"></i> Home</a></li>
+        <li>财务管理</li>
+        <li class="active">发票管理</li>
+    </ol>
+</section>
+
+<!-- Main content -->
+<section class="content">
+    <div class="row">
+        <div class="col-xs-12">
+
+            <div class="box">
+                <!-- /.box-header -->
+                <div class="box-body">
+                    <div id="example1_wrapper" class="dataTables_wrapper form-inline dt-bootstrap">
+
+
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <div id="toolbar">
+                                    <div class="form-group">
+                                        <select id="state_qt" class="form-control" style="font-size:12px;">
+                                            <option value="0">选择状态</option>
+                                            <option value="draft">草稿</option>
+                                            <option value="open">待支付</option>
+                                            <option value="validate">待审核</option>
+                                            <option value="closed">已结案</option>
+                                            <option value="partPaid">部分支付</option>
+                                            <option value="paid">已付</option>
+                                            <option value="cancel">已取消</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="form-group">
+                                        <select id="paymode_qt" class="form-control" style="font-size:12px;">
+                                            <option value="0">选择付款方式</option>
+                                            {% for paymode in paymodelist %}
+                                            <option value="{{ paymode.id }}">{{ paymode.name }}</option>
+                                            {% endfor %}
+                                        </select>
+                                    </div>
+
+
+                                    <div class="form-group ">
+
+                                        <input id="origin_qt" type="text" name="table_search"
+                                               class="form-control pull-right"
+                                               placeholder="源单据">
+
+                                    </div>
+                                    <div class="form-group ">
+                                        <button type="submit" id="btn_query" class="btn btn-default"><i
+                                                class="fa fa-search"></i></button>
+                                    </div>
+
+
+                                </div>
+                                <table id="bootstraptable" style="font-size:12px"
+                                       class="table table-bordered table-striped table-hover" role="grid"
+                                       aria-describedby="example1_info"
+                                       data-show-refresh="true"
+                                       data-show-columns="true"
+                                       data-show-export="true"
+                                       data-detail-view="true">
+                                </table>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+                <!-- /.box-body -->
+            </div>
+            <!-- /.box -->
+        </div>
+        <!-- /.col -->
+    </div>
+    <!-- /.row -->
+</section>
+<!-- /.content -->
+</body>
+
+
+<script type="text/javascript" src="/static/sourcejs/cwgl/invoice_list.js"></script>
+</html>
