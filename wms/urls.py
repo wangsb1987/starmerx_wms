@@ -27,7 +27,6 @@ from master.myviews import cggl
 # 仓库管理方法引用
 from master.myviews import ckgl
 
-from master.myviews.Amazon import test
 
 
 urlpatterns = [
@@ -71,6 +70,4 @@ urlpatterns = [
     # ======仓库管理url
     url(r'^starmerx_ckgl/stock_picking_list/$', ckgl.ckgl_stock_picking_list),
 
-    url(r'^aa/$', test.test),
-    url(r'^bb/$', test.test1),
 ]
