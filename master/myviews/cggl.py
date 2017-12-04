@@ -5,7 +5,7 @@ from django.shortcuts import render_to_response
 from master.models import T_user
 from master.models import ResUsers
 from master.models import ResPartner
-from master.models import AccountInvoice, AccountInvoiceLine
+from master.models import AccountInvoice, AccountInvoiceLine,ProcurementOrder
 from master.models import PaymentMode
 from master.models import PurchaseOrder, PurchaseOrderLine, ProductUom, StcokPicking, StcokMove,WkfInstance,WkfWorkitem
 from master.models import ResCurrency, ResProduct, StockWareHouse, StarmerxInventory,ResProductTemplate,Purchase_Invoice_Rel
@@ -31,11 +31,13 @@ def cggl_xjd_list(req):
     if not username:
         return logout(req)
 
+    stockwarehouselist = StockWareHouse.objects.filter(
+        lot_input_id__in=[118, 135, 141, 146, 147, 171, 13, 16, 19, 176, 182,183,184,193,195,197,199]).values('lot_input_id', 'name')
     # paymodelist = PaymentMode.objects.all().values('id','name')
     # purchasers_list = ResPartner.objects.filter(supplier='f',user_id__isnull=True,customer ='f')
     # gys_list = ResPartner.objects.filter(supplier='t')
     return render_to_response('starmerx_cggl/xjd_list.html',
-                              {'login_t_name': username})
+                              {'login_t_name': username,'warehouselist': stockwarehouselist})
     # return render_to_response('starmerx_cggl/xjd_list.html',
     #                           {'login_t_name': username, 'purchasers_list': purchasers_list, 'gys_list': gys_list})
 
@@ -62,9 +64,11 @@ def get_xjd_list(req):
         offset = int(req.GET['offset'])
     startjilu = int(offset)
     endjilu = int(offset) + int(limit)
-    filterdist = {}
-    filterdist['state'] = 'draft'
+    # filterdist = {}
+    # filterdist['state'] = 'draft'
     purchase_objs = PurchaseOrder.objects.filter(state='draft')
+
+
     # if req.GET.has_key('gys_qt') and req.GET['gys_qt'] != "0":
     #     filterdist['partner_id'] = req.GET['gys_qt']
     # if req.GET.has_key('purchaser_qt') and req.GET['purchaser_qt'] != "0":
@@ -72,13 +76,24 @@ def get_xjd_list(req):
     #     ru = ResUsers.objects.filter(partner_id=req.GET['purchaser_qt'])
     #     filterdist['purchaser_id'] = ru[0].id
     if req.GET.has_key('name_qt') and req.GET['name_qt'] != "":
-        filterdist['name'] = req.GET['name_qt']
+        # filterdist['name'] = req.GET['name_qt']
         purchase_objs = purchase_objs.filter(name__icontains=req.GET['name_qt'])
+    if req.GET.has_key('location_id') and req.GET['location_id'] != "0":
+        # filterdist['name'] = req.GET['name_qt']
+        purchase_objs = purchase_objs.filter(location_id=req.GET['location_id'])
+    if req.GET.has_key('sku_qt') and req.GET['sku_qt'] != "":
+        # filterdist['name'] = req.GET['name_qt']
+        product_obj = ResProduct.objects.filter(default_code=req.GET['sku_qt'])
+        if product_obj:
+            purchase_objs = purchase_objs.filter(pk__in=PurchaseOrderLine.objects.filter(product_id=product_obj[0].id).values('order_id'))
+        else:
+            purchase_objs = purchase_objs.filter(pk__in=PurchaseOrderLine.objects.filter(product_id=0).values('order_id'))
     if req.GET.has_key('partner_id') and req.GET['partner_id'] != "0":
-        filterdist['partner_id'] = req.GET['partner_id']
+        # filterdist['partner_id'] = req.GET['partner_id']
         purchase_objs = purchase_objs.filter(partner_id=req.GET['partner_id'])
     if uid!=1 and uid!=214:  #214是罗杰的账户
-        purchase_objs = purchase_objs.filter(purchaser_id=uid)
+        # ResPartner.objects.filter(user_id=uid)
+        purchase_objs = purchase_objs.filter(partner_id__in=ResPartner.objects.filter(user_id=uid).values('id'))
     # purchase_objs = PurchaseOrder.objects.filter(**filterdist).order_by('-id')
     orderby = ''
     if order == 'desc':
@@ -180,9 +195,9 @@ def purchase_order_add(req):
 
     now = datetime.now().strftime('%Y-%m-%d')
     stockwarehouselist = StockWareHouse.objects.filter(
-        lot_input_id__in=[118, 135, 141, 146, 147, 171, 13, 16, 19,176]).values('lot_input_id', 'name')
+        lot_input_id__in=[118, 135, 141, 146, 147, 171, 13, 16, 19,176,182,183,184,193,195,197,199]).values('lot_input_id', 'name')
     paymodelist = PaymentMode.objects.all().values('id', 'name')
-    partnerlist = ResPartner.objects.filter(supplier='t').values('id', 'name')[0:10]
+    partnerlist = ResPartner.objects.filter(supplier='t').filter(active='t').values('id', 'name')[0:10]
     # productlist = ResProduct.objects.filter(product_tmpl__type='product',product_tmpl__purchase_ok='t').values('id', 'name_template', 'last_purchase_price')[0:10]
     # print productlist.query
     productuomlist = ProductUom.objects.all().values('id', 'name')
@@ -206,6 +221,7 @@ def purchase_order_list(req):
 
 # ---采购管理/创建询价单
 def create_purchase_order(req):
+    uid = req.session.get('login_t_id')
     username = req.session.get('login_t_name', default=None)
     if not username:
         return logout(req)
@@ -220,7 +236,7 @@ def create_purchase_order(req):
 
         #验证供应商是否归属当前用户
         res_p = ResPartner.objects.get(id=req.GET['partner_id'])
-        if res_p.user_id !=req.session.get('login_t_id'):
+        if uid != 1 and uid != 214 and res_p.user_id !=req.session.get('login_t_id'):
             result['result'] = u'所选择的供应商不在你的名下'
             return HttpResponse(json.dumps(result), content_type="application/json")
         # PurchaseOrderLine.objects.create(product_id=req.GET['product_id'],price_unit=req.GET['price_unit'],
@@ -241,8 +257,6 @@ def create_purchase_order(req):
                                           partner_id=req.GET['partner_id'], location_id=req.GET['location_id'],warehouse_id=1,
                                           pricelist_id=2, date_order=date_order, company_id=1,
                                           partner_ref=req.GET['partner_ref'], payment_mode=req.GET['payment_mode'],
-                                          logistics_company=req.GET['logistics_company'],
-                                          track_number=req.GET['track_number'],
                                           notes=req.GET['notes'], amount_total=req.GET['amount_total'], state='draft',
                                           invoice_method='manual', stock_state='none', purchaser_id=purchaser_id
                                           )
@@ -269,7 +283,7 @@ def create_purchase_order(req):
                                              should_purchase_qty_real=orderline['product_qty'],
                                              product_uom=1,company_id=1,partner_id=req.GET['partner_id'],
                                              order_id=po.id, name=pname, date_planned=date_order, state='draft',
-                                             last_supplier=product.last_supplier,last_purchase_price=product.last_purchase_price)
+                                             last_new_supplier=product.last_supplier,last_purchase_price=product.last_purchase_price)
             # 增加在途库存
             Vinventory = StarmerxInventory.objects.filter(product_id=orderline["product_id"], type='virtual',
                                                           location_id=req.GET['location_id'])
@@ -358,7 +372,7 @@ def purchase_order_info(req):
         dict1['minimum_planned_date'] = ''
     else:
         dict1['minimum_planned_date'] = purchase_order_obj.minimum_planned_date.strftime('%Y-%m-%d')
-    order_line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj.id)
+    order_line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj.id).order_by('name')
     line_list = []
     for orderline in order_line_list:
         line_dict = {}
@@ -374,18 +388,18 @@ def purchase_order_info(req):
 
         if reason==10:
             line_dict["last_purchase_price"] = orderline.last_purchase_price
-            if orderline.last_supplier > 0:
-                lp = ResPartner.objects.get(id=orderline.last_supplier)
-                line_dict["last_supplier"] = lp.name
+            if orderline.last_new_supplier > 0:
+                lp = ResPartner.objects.get(id=orderline.last_new_supplier)
+                line_dict["last_new_supplier"] = lp.name
             else:
-                line_dict["last_supplier"] = ""
+                line_dict["last_new_supplier"] = ""
         else:
             line_dict["last_purchase_price"] = product.last_purchase_price
             if product.last_supplier > 0:
                 lp = ResPartner.objects.get(id=product.last_supplier)
-                line_dict["last_supplier"] = lp.name
+                line_dict["last_new_supplier"] = lp.name
             else:
-                line_dict["last_supplier"] = ""
+                line_dict["last_new_supplier"] = ""
 
         # 应采购数量
         line_dict["should_purchase_qty_real"] = orderline.should_purchase_qty_real
@@ -431,11 +445,19 @@ def get_purchase_order_list(req):
     if req.GET.has_key('name_qt') and req.GET['name_qt'] != "":
         filterdist['name'] = req.GET['name_qt']
         purchase_objs = purchase_objs.filter(name__icontains=req.GET['name_qt'])
+    if req.GET.has_key('sku_qt') and req.GET['sku_qt'] != "":
+        # filterdist['name'] = req.GET['name_qt']
+        product_obj = ResProduct.objects.filter(default_code=req.GET['sku_qt'])
+        if product_obj:
+            purchase_objs = purchase_objs.filter(pk__in=PurchaseOrderLine.objects.filter(product_id=product_obj[0].id).values('order_id'))
+        else:
+            purchase_objs = purchase_objs.filter(pk__in=PurchaseOrderLine.objects.filter(product_id=0).values('order_id'))
     if req.GET.has_key('partner_id') and req.GET['partner_id'] != "0":
         filterdist['partner_id'] = req.GET['partner_id']
         purchase_objs = purchase_objs.filter(partner_id=req.GET['partner_id'])
     if uid!=1 and uid!=214:  #214是罗杰的账户
-        purchase_objs = purchase_objs.filter(purchaser_id=uid)
+        purchase_objs = purchase_objs.filter(partner_id__in=ResPartner.objects.filter(user_id=uid).values('id'))
+        # purchase_objs = purchase_objs.filter(purchaser_id=uid)
     orderby = ''
     if order == 'desc':
         orderby = '-' + sort
@@ -576,13 +598,12 @@ def HB_purchase_order(req):
     result = {'result': 'no'}
     print req.GET['hbids']
     print eval(req.GET['hbids'])
-    origin = ""
+    origin = ''
     partner_id = 0
     location_id = 0
     partner_ref = ""
     payment_mode = 0
     logistics_company = ""
-    track_number = ""
     notes = ""
     amount_total = 0.0
     old_order_list = PurchaseOrder.objects.filter(id__in=eval(req.GET['hbids']))
@@ -599,16 +620,22 @@ def HB_purchase_order(req):
     if kehb==False:
         result['result'] = '合并的订单中存在目标仓库不一致的订单，请检查:'+str(localist)
         return HttpResponse(json.dumps(result), content_type="application/json")
+
+
     # 取消原来的询价单
     old_order_list.update(state='cancel')
     for oldorder in old_order_list:
         if oldorder.origin != None:
             origin += oldorder.origin
         amount_total += float(oldorder.amount_total)
+
+    if origin == '':
+        origin = None
+
     notes =""
     partner_ref = old_order_list[0].partner_ref
     logistics_company = ""
-    track_number = ""
+    track_number = None
     partner_id = old_order_list[0].partner_id
     purchaser_id = old_order_list[0].purchaser_id
     location_id = old_order_list[0].location_id
@@ -628,12 +655,13 @@ def HB_purchase_order(req):
                                       partner_id=partner_id, location_id=location_id,warehouse_id=1,
                                       pricelist_id=2, date_order=date_order, company_id=1,
                                       partner_ref=partner_ref, payment_mode=payment_mode,
-                                      logistics_company=logistics_company,
-                                      track_number=track_number,
                                       notes=notes, amount_total=amount_total, state='draft',
                                       invoice_method='manual', stock_state='none',purchaser_id=purchaser_id
                                       )
     print po.id
+    # 将备货单关联的采购单更新为合并后的询价单
+    for oldorder in old_order_list:
+        ProcurementOrder.objects.filter(purchase_id=oldorder.id).update(purchase_id=po.id)
     # 写ERP工作流表
     wks_ins_p_o = WkfInstance.objects.create(wkf_id=5, uid=1, res_type='purchase.order', state='active',
                                                        res_id=po.id)
@@ -697,7 +725,7 @@ def confirmed_purchase_order(req):
                 kcg = False
                 result = {'result': '采购明细中'+product.default_code+'不可采购，请核实'}
                 return HttpResponse(json.dumps(result), content_type="application/json")
-    if purchase_order_obj[0].location_id in [135, 141, 146, 147, 16, 19]:
+    if purchase_order_obj[0].location_id in [135, 141, 146, 147, 16, 19,183,184]:
         line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj[0].id)
         for line in line_list:
             if line.product_id != 2475 and line.person_stock_id == None:
@@ -725,15 +753,17 @@ def confirmed_purchase_order(req):
     new_name = "IN" + datetime.now().strftime('%Y%m%d%H%M%S%f')[2:] + "_wms"
 
     invoice_state = 'none'
+    pickinglist = StcokPicking.objects.filter(origin__icontains=purchase_order_obj[0].name)
     if purchase_order_obj[0].invoice_method == 'picking':
         invoice_state = '2binvoiced'
-    spicking = StcokPicking.objects.create(create_date=create_date, create_uid=create_uid, date=date_order,
-                                           company_id=1,name=new_name,
-                                           origin=purchase_order_obj[0].name,
-                                           partner_id=purchase_order_obj[0].partner_id, move_type='direct',
-                                           invoice_state=invoice_state, state='assigned',
-                                           location_dest_id=purchase_order_obj[0].location_id, auto_picking='f',
-                                           type='in', purchase_id=purchase_order_obj[0].id, weight_uom_id=3)
+    if pickinglist.count() <= 0:
+        spicking = StcokPicking.objects.create(create_date=create_date, create_uid=create_uid, date=date_order,
+                                               company_id=1,name=new_name,
+                                               origin=purchase_order_obj[0].name,
+                                               partner_id=purchase_order_obj[0].partner_id, move_type='direct',
+                                               invoice_state=invoice_state, state='assigned',
+                                               location_dest_id=purchase_order_obj[0].location_id, auto_picking='f',
+                                               type='in', purchase_id=purchase_order_obj[0].id, weight_uom_id=3)
 
     # 写ERP工作流表
     wks_ins_stock_picking = WkfInstance.objects.create(wkf_id=3,uid=1,res_type='stock.picking',state='active',res_id=spicking.id)
@@ -774,16 +804,16 @@ def confirmed_purchase_order(req):
             StcokMove.objects.create(create_date=create_date, create_uid=create_uid, date=date_order,
                                      origin=purchase_order_obj[0].name, product_qty=line.product_qty, product_uom=1,
                                      price_unit=line.price_unit,weight=product_obj.product_tmpl.weight,weight_net=product_obj.product_tmpl.weight_net,
-                                     partner_id=line.partner_id, name=line.name, company_id=1,
+                                     partner_id=line.partner_id, name=line.name, company_id=1,move_dest_id=line.move_dest_id,
                                      product_id=line.product_id, state='assigned', picking_id=spicking.id, priority=1,
                                      location_dest_id=purchase_order_obj[0].location_id, auto_validate='f',
                                      purchase_line_id=line.id, date_expected=date_order, location_id=8, weight_uom_id=3)
-            # 更新上次采购价、更新上次供应商
+            # 更新上次采购价、更新上次供应商,更新产品表采购员
             if line.product_qty != 0:
                 line.last_purchase_price=ResProduct.objects.filter(id=line.product_id)[0].last_purchase_price
-                line.last_supplier=ResProduct.objects.filter(id=line.product_id)[0].last_supplier
+                line.last_new_supplier=ResProduct.objects.filter(id=line.product_id)[0].last_supplier
                 line.save()
-                ResProduct.objects.filter(id=line.product_id).update(last_purchase_price=line.price_unit,last_supplier=line.partner_id)
+                ResProduct.objects.filter(id=line.product_id).update(last_purchase_price=line.price_unit,last_supplier=line.partner_id,last_purchaser=purchase_order_obj[0].purchaser_id)
         # 写发票明细
         if purchase_order_obj[0].invoice_method == 'manual':
             AccountInvoiceLine.objects.create(create_date=create_date, create_uid=create_uid,
@@ -869,7 +899,7 @@ def edit_purchase_order(req):
     else:
         dict1['minimum_planned_date'] = purchase_order_obj.minimum_planned_date.strftime('%Y-%m-%d')
 
-    order_line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj.id)
+    order_line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj.id).order_by('name')
     line_list = []
     for orderline in order_line_list:
         line_dict = {}
@@ -878,6 +908,8 @@ def edit_purchase_order(req):
         line_dict["product_qty"] = orderline.product_qty
         line_dict["product_id"] = orderline.product_id
         line_dict["price_unit"] = orderline.price_unit
+
+        line_dict["move_dest_id"] = orderline.move_dest_id
         # 获取单位
         # line_dict["uom_name"] = ProductUom.objects.get(id=orderline.product_uom).name
         # line_dict["uom_id"] = orderline.product_uom
@@ -916,9 +948,9 @@ def edit_purchase_order(req):
 
     now = purchase_order_obj.create_date.strftime('%Y-%m-%d')
     stockwarehouselist = StockWareHouse.objects.filter(
-        lot_input_id__in=[118, 135, 141, 146, 147, 171, 13, 16, 19,176]).values('lot_input_id', 'name')
+        lot_input_id__in=[118, 135, 141, 146, 147, 171, 13, 16, 19,176,182,183,184,193,195,197,199]).values('lot_input_id', 'name')
     paymodelist = PaymentMode.objects.all().values('id', 'name')
-    partnerlist = ResPartner.objects.filter(supplier='t').values('id', 'name')[0:10]
+    partnerlist = ResPartner.objects.filter(supplier='t').filter(active='t').values('id', 'name')[0:10]
     # productlist = ResProduct.objects.filter(product_tmpl__type='product',product_tmpl__purchase_ok='t').values('id', 'name_template', 'last_purchase_price')[0:10]
     productuomlist = ProductUom.objects.all().values('id', 'name')
 
@@ -933,6 +965,7 @@ def edit_purchase_order(req):
 # ---采购管理/更新询价单
 def update_purchase_order(req):
     username = req.session.get('login_t_name', default=None)
+    uid = req.session.get('login_t_id')
     if not username:
         return logout(req)
     result = {'result': 'no'}
@@ -949,7 +982,7 @@ def update_purchase_order(req):
 
         # 验证供应商是否归属当前用户
         res_p = ResPartner.objects.get(id=req.GET['partner_id'])
-        if res_p.user_id != req.session.get('login_t_id'):
+        if uid != 1 and uid != 214 and res_p.user_id !=req.session.get('login_t_id'):
             result['result'] = u'所选择的供应商不在你的名下'
             return HttpResponse(json.dumps(result), content_type="application/json")
         purchaser_id = 0
@@ -960,14 +993,13 @@ def update_purchase_order(req):
             minindate = datetime.strptime(req.GET['minimum_planned_date']+" 08:00:00",'%Y-%m-%d %H:%M:%S')
         po = purchase_order_obj.update(partner_id=req.GET['partner_id'], location_id=req.GET['location_id'],
                                        partner_ref=req.GET['partner_ref'], payment_mode=req.GET['payment_mode'],
-                                       logistics_company=req.GET['logistics_company'],
-                                       track_number=req.GET['track_number'],
                                        notes=req.GET['notes'], amount_total=req.GET['amount_total'],
                                        invoice_method=req.GET['invoice_method'], purchaser_id=purchaser_id,
                                        minimum_planned_date=minindate
                                        )
         # 删掉源PO明细增加的虚拟库存
         purchase_order_line_list = PurchaseOrderLine.objects.filter(order_id=purchase_order_obj[0].id)
+        move_dest_list = {}
         for line in purchase_order_line_list:
             # 减少在途
             Vinventory = StarmerxInventory.objects.filter(product_id=line.product_id, type='virtual',
@@ -990,10 +1022,16 @@ def update_purchase_order(req):
                 person_stock_id = None
             else:
                 person_stock_id =orderline['person_stock_id']
+
+            move_dest_id = None
+            if orderline['move_dest_id'] =="None" or orderline['move_dest_id'] =="":
+                move_dest_id = None
+            else:
+                move_dest_id =orderline['move_dest_id']
             PurchaseOrderLine.objects.create(create_date=create_date, create_uid=create_uid,
                                              product_id=orderline["product_id"],company_id=1,
                                              price_unit=orderline['price_unit'],person_stock_id=person_stock_id,
-                                             product_qty=int(orderline['product_qty']),
+                                             product_qty=int(orderline['product_qty']),move_dest_id=move_dest_id,
                                              should_purchase_qty_real=int(orderline['product_qty']),
                                              product_uom=1,partner_id=req.GET['partner_id'],
                                              order_id=purchase_order_obj[0].id, name=pname, date_planned=date_order,

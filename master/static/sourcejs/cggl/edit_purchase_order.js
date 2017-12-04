@@ -453,6 +453,7 @@ $('#para_table tr').each(function(rowindex){
     if(rowindex!=0)
     {
         var person_stock_id=0;
+        var move_dest_id=0;
         if($(this).find('td').eq(5).find("input").val()==""||$(this).find('td').eq(5).find("input").val()=="None"||$(this).find('td').eq(5).find("input").val()=="0")
         {
             person_stock_id="None";
@@ -461,8 +462,17 @@ $('#para_table tr').each(function(rowindex){
         {
             person_stock_id=$(this).find('td').eq(5).find("input").val();
         }
+
+        if($(this).find('td').eq(4).find("input").val()==""||$(this).find('td').eq(4).find("input").val()=="None"||$(this).find('td').eq(4).find("input").val()=="0")
+        {
+            move_dest_id="None";
+        }
+        else
+        {
+            move_dest_id=$(this).find('td').eq(4).find("input").val();
+        }
         a.push({'product_id':$(this).find('td').eq(0).find("input").val(),'price_unit':$(this).find('td').eq(2).text(),
-            'product_qty':parseInt($(this).find('td').eq(1).text()),'person_stock_id':person_stock_id})
+            'product_qty':parseInt($(this).find('td').eq(1).text()),'person_stock_id':person_stock_id,'move_dest_id':move_dest_id})
     }
 });
 }

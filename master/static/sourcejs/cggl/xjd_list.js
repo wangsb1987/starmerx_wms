@@ -143,6 +143,8 @@ function queryParams(params) {
 
     params['partner_id']=$("#partner_id").val();
     params['name_qt']=$("#name_qt").val();
+    params['sku_qt']=$("#sku_qt").val();
+    params['location_id']=$("#location_id").val();
 
     return params;
 }
@@ -160,6 +162,7 @@ $('#btn_create').click(function () {
 
 //合并询价单按钮
 $('#hb_xjdbtn').click(function () {
+$(this).attr("disabled","disabled");
     var ids = getIdSelections();
     if(ids.length<=0)
     {
@@ -174,6 +177,7 @@ $('#hb_xjdbtn').click(function () {
         if(oldz != gyss[i])
         {
             alert("存在不相同的供应商，不允许合并");
+            $('#hb_xjdbtn').removeAttr("disabled");
             return false;
         }
     }
@@ -199,6 +203,9 @@ $('#hb_xjdbtn').click(function () {
             {
                 alert(data.result);
             }
+        },
+        complete: function(XMLHttpRequest, textStatus){
+               $('#hb_xjdbtn').removeAttr("disabled");
         }
     });
 });

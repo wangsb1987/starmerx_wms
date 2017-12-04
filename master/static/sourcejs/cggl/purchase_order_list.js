@@ -136,6 +136,7 @@ function queryParams(params) {
 
     params['name_qt']=$("#name_qt").val();
     params['partner_id']=$("#partner_id").val();
+    params['sku_qt']=$("#sku_qt").val();
     //alert($("#paymode_qt").val());
 
     return params;

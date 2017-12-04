@@ -160,7 +160,7 @@ def getSupplier(request):
 
 def get_skip_by_name_supplier(name, skip):
 
-    temp = ResPartner.objects.filter(name__icontains=name).values('id', 'name')
+    temp = ResPartner.objects.filter(name__icontains=name).filter(active='t').values('id', 'name')
     count = temp.count()
     if count < skip+10:
         data = temp[skip:]

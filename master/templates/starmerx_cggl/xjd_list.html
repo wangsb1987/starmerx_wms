@@ -12,7 +12,6 @@
     <link rel="stylesheet" href="/static/prokj/AdminLTE.min.css">
 
 
-
     <link rel="stylesheet" href="/static/bootstrap_table/bootstrap-table.min.css"/>
     <script type="text/javascript" src="/static/bootstrap_table/jquery.min.js"></script>
 
@@ -23,7 +22,7 @@
     <script src="/static/js/bootstrap-select.js"></script>
     <link rel="stylesheet" href="/static/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/css/bootstrap-select.css">
-   <link rel="stylesheet" href="/static/css/select2.min.css">
+    <link rel="stylesheet" href="/static/css/select2.min.css">
     <link rel="stylesheet" href="/static/css/select2-bootstrap.min.css">
 
     <script src="/static/js/select2.min.js"></script>
@@ -62,29 +61,45 @@
                             <div class="col-sm-12">
                                 <div id="toolbar">
                                     <!--<div class="form-group">-->
-                                        <!--<select id="purchaser_qt" class="form-control" style="font-size:12px;">-->
-                                            <!--<option value="0">选择采购员</option>-->
-                                            <!--{% for pur in purchasers_list %}-->
-                                            <!--<option value="{{ pur.id }}">{{ pur.name }}</option>-->
-                                            <!--{% endfor %}-->
-                                        <!--</select>-->
+                                    <!--<select id="purchaser_qt" class="form-control" style="font-size:12px;">-->
+                                    <!--<option value="0">选择采购员</option>-->
+                                    <!--{% for pur in purchasers_list %}-->
+                                    <!--<option value="{{ pur.id }}">{{ pur.name }}</option>-->
+                                    <!--{% endfor %}-->
+                                    <!--</select>-->
                                     <!--</div>-->
 
                                     <div class="form-group">
                                         <select id="partner_id" class="js-data-example-ajax form-control"
-                                            style="width:150px" >
-                                        <option value="0">选择供应商</option>
+                                                style="width:150px">
+                                            <option value="0">选择供应商</option>
 
-                                    </select>
+                                        </select>
                                     </div>
 
 
                                     <div class="form-group ">
 
                                         <input id="name_qt" type="text" name="table_search"
-                                               class="form-control pull-right"  style="width:100px"
+                                               class="form-control pull-right" style="width:100px"
                                                placeholder="单号">
 
+                                    </div>
+                                    <div class="form-group ">
+
+                                        <input id="sku_qt" type="text" name="table_search"
+                                               class="form-control pull-right" style="width:150px"
+                                               placeholder="sku">
+
+                                    </div>
+
+                                    <div class="form-group ">
+                                        <select id="location_id" class="form-control" style="width:90%">
+                                            <option value="0">选择目标仓库</option>
+                                            {% for warehouse in warehouselist %}
+                                            <option value="{{ warehouse.lot_input_id }}">{{ warehouse.name }}</option>
+                                            {% endfor %}
+                                        </select>
                                     </div>
                                     <div class="form-group ">
                                         <button type="submit" id="btn_query" class="btn btn-default"><i
@@ -92,11 +107,13 @@
                                     </div>
                                     <div class="form-group ">
                                         <button type="submit" id="btn_create" class="btn btn-default"><i
-                                                class="fa fa-pencil-square"></i>新建询价单</button>
+                                                class="fa fa-pencil-square"></i>新建询价单
+                                        </button>
                                     </div>
                                     <div class="form-group ">
                                         <button type="submit" id="hb_xjdbtn" class="btn btn-default"><i
-                                                class="fa fa-gg"></i>合并询价单</button>
+                                                class="fa fa-gg"></i>合并询价单
+                                        </button>
                                     </div>
 
                                 </div>

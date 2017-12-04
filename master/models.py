@@ -403,7 +403,7 @@ class PurchaseOrderLine(models.Model):
     invoice_repair_state = models.CharField(max_length=64)
     notes = models.TextField(blank=True, null=True)
     is_first = models.CharField(max_length=64)
-    last_supplier = models.IntegerField(blank=True, null=True)
+    last_new_supplier = models.IntegerField(blank=True, null=True)
     last_purchase_price = models.FloatField(blank=True, null=True)
 
     class Meta:

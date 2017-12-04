@@ -145,14 +145,14 @@
                         物流公司
                     </td>
                     <td>
-                        <input id="logistics_company" value="{{purchase_order_obj.logistics_company}}" type="text"
+                        <input disabled id="logistics_company" value="{{purchase_order_obj.logistics_company}}" type="text"
                                class="form-control" style="width:90%">
                     </td>
                     <td style="text-align:center">
                         跟踪单号
                     </td>
                     <td>
-                        <input id="track_number" value="{{purchase_order_obj.track_number}}" type="text"
+                        <input disabled id="track_number" value="{{purchase_order_obj.track_number}}" type="text"
                                class="form-control" style="width:90%">
                     </td>
                 </tr>
@@ -237,8 +237,8 @@
                         <!--<td>{{ orderline.uom_name }}<input type="hidden" value="{{ orderline.uom_id }}"/></td>-->
                         <td onclick='tdclick(this)'>{{ orderline.price_unit }}</td>
                         <td >{{ orderline.xj }}</td>
-                        <td >{{ orderline.last_purchase_price }}</td>
-                        <td >{{ orderline.last_supplier }}<input type="hidden" value="{{ orderline.person_stock_id }}"/></td>
+                        <td >{{ orderline.last_purchase_price }}<input type="hidden" value="{{ orderline.move_dest_id }}"/></td>
+                        <td >{{ orderline.last_new_supplier }}<input type="hidden" value="{{ orderline.person_stock_id }}"/></td>
                         <td onclick='deletetr(this)'><i class='fa fa-remove'></i></td>
                     </tr>
                     {% endfor %}
